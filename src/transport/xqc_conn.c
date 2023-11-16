@@ -80,6 +80,7 @@ xqc_conn_settings_t default_conn_settings = {
                                     .rtt_us_thr_low = 500000
                                   },
     .is_interop_mode            = 0,
+    .max_concurrent_paths       = 4,
 };
 
 
