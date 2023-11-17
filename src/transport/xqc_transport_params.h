@@ -76,7 +76,7 @@ typedef enum {
     XQC_TRANSPORT_PARAM_ENABLE_MULTIPATH_06                 = 0x0f739bbc1b666d06,
 
     /* multipath max concurrent paths */
-    XQC_TRANSPORT_PARAM_MAX_CONCURRENT_PATHS                = 0x0f739bbc1b666df1,
+    XQC_TRANSPORT_PARAM_MAX_CONCURRENT_PATHS                = 0x0f29e3d19e,
 
     /* upper limit of params defined by xquic */
     XQC_TRANSPORT_PARAM_UNKNOWN,
