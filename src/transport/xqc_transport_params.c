@@ -157,7 +157,12 @@ xqc_transport_params_calc_length(const xqc_transport_params_t *params,
     }
 
     if (params->enable_multipath) {
-        if (params->multipath_version == XQC_MULTIPATH_06) {
+        if (params->multipath_version == XQC_MULTIPATH_07) {
+            len += xqc_put_varint_len(XQC_TRANSPORT_PARAM_ENABLE_MULTIPATH_07) +
+                    xqc_put_varint_len(xqc_put_varint_len(params->max_concurrent_paths)) +
+                    xqc_put_varint_len(params->max_concurrent_paths);
+
+        } else if (params->multipath_version == XQC_MULTIPATH_06) {
             /* enable_multipath (-draft06) is zero-length transport parameter */
             len += xqc_put_varint_len(XQC_TRANSPORT_PARAM_ENABLE_MULTIPATH_06) +
                    xqc_put_varint_len(0);
@@ -350,7 +355,10 @@ xqc_encode_transport_params(const xqc_transport_params_t *params,
     }
 
     if (params->enable_multipath) {
-        if (params->multipath_version == XQC_MULTIPATH_06) {
+        if (params->multipath_version == XQC_MULTIPATH_07) {
+            p = xqc_put_varint_param(p, XQC_TRANSPORT_PARAM_ENABLE_MULTIPATH_07, params->max_concurrent_paths);
+
+        } else if (params->multipath_version == XQC_MULTIPATH_06) {
             p = xqc_put_zero_length_param(p, XQC_TRANSPORT_PARAM_ENABLE_MULTIPATH_06);
 
         } else if (params->multipath_version == XQC_MULTIPATH_05) {
@@ -360,10 +368,6 @@ xqc_encode_transport_params(const xqc_transport_params_t *params,
             p = xqc_put_varint_param(p, XQC_TRANSPORT_PARAM_ENABLE_MULTIPATH_04, params->enable_multipath);
         }
 
-        if (params->max_concurrent_paths) {
-            p = xqc_put_varint_param(p, XQC_TRANSPORT_PARAM_MAX_CONCURRENT_PATHS,
-                                     params->max_concurrent_paths);
-        }
     }
 
     if ((size_t)(p - out) != len) {
@@ -606,7 +610,13 @@ static xqc_int_t
 xqc_decode_enable_multipath(xqc_transport_params_t *params, xqc_transport_params_type_t exttype,
     const uint8_t *p, const uint8_t *end, uint64_t param_type, uint64_t param_len)
 {
-    if (param_type == XQC_TRANSPORT_PARAM_ENABLE_MULTIPATH_06) {
+    if (param_type == XQC_TRANSPORT_PARAM_ENABLE_MULTIPATH_07) {
+        /* enable_multipath param is a zero-length value, presentation means enable */
+        params->enable_multipath = 1;
+        params->multipath_version = XQC_MULTIPATH_07;
+        XQC_DECODE_VINT_VALUE(&params->max_concurrent_paths, p, end);
+        return XQC_OK;
+    } else if (param_type == XQC_TRANSPORT_PARAM_ENABLE_MULTIPATH_06) {
         /* enable_multipath param is a zero-length value, presentation means enable */
         params->enable_multipath = 1;
         params->multipath_version = XQC_MULTIPATH_06;
@@ -626,12 +636,6 @@ xqc_decode_enable_multipath(xqc_transport_params_t *params, xqc_transport_params
     return XQC_OK;
 }
 
-static xqc_int_t
-xqc_decode_max_concurrent_paths(xqc_transport_params_t *params, xqc_transport_params_type_t exttype,
-    const uint8_t *p, const uint8_t *end, uint64_t param_type, uint64_t param_len)
-{
-    XQC_DECODE_VINT_VALUE(&params->max_concurrent_paths, p, end);
-}
 
 static xqc_int_t
 xqc_decode_max_datagram_frame_size(xqc_transport_params_t *params, xqc_transport_params_type_t exttype,
@@ -667,7 +671,6 @@ xqc_trans_param_decode_func xqc_trans_param_decode_func_list[] = {
     xqc_decode_no_crypto,
     xqc_decode_enable_multipath,
     xqc_decode_max_datagram_frame_size,
-    xqc_decode_max_concurrent_paths,
 };
 
 
@@ -702,13 +705,11 @@ xqc_trans_param_get_index(uint64_t param_type)
     case XQC_TRANSPORT_PARAM_ENABLE_MULTIPATH_04:
     case XQC_TRANSPORT_PARAM_ENABLE_MULTIPATH_05:
     case XQC_TRANSPORT_PARAM_ENABLE_MULTIPATH_06:
+        case XQC_TRANSPORT_PARAM_ENABLE_MULTIPATH_07:
         return XQC_TRANSPORT_PARAM_PROTOCOL_MAX + 1;
 
     case XQC_TRANSPORT_PARAM_MAX_DATAGRAM_FRAME_SIZE:
         return XQC_TRANSPORT_PARAM_PROTOCOL_MAX + 2;
-
-    case XQC_TRANSPORT_PARAM_MAX_CONCURRENT_PATHS:
-        return XQC_TRANSPORT_PARAM_PROTOCOL_MAX + 3;
 
     default:
         break;
