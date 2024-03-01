@@ -359,7 +359,8 @@ struct xqc_connection_s {
     uint32_t                        validated_path_count;
     uint32_t                        active_path_count;
 
-    uint64_t                        max_concurrent_paths;
+    uint64_t                        max_paths;
+    uint64_t                        current_max_paths;
 
     const
     xqc_scheduler_callback_t       *scheduler_callback;
