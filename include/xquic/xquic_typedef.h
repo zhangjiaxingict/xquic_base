@@ -135,6 +135,7 @@ typedef enum xqc_log_level_s {
     XQC_LOG_STATS,
     XQC_LOG_INFO,
     XQC_LOG_DEBUG,
+    XQC_LOG_TEST,
 } xqc_log_level_t;
 
 #define XQC_BBR_RTTVAR_COMPENSATION_ENABLED 0
