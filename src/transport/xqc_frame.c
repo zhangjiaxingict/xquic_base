@@ -1367,6 +1367,67 @@ xqc_process_datagram_frame(xqc_connection_t *conn, xqc_packet_in_t *packet_in)
     return ret;
 }
 
+xqc_int_t
+xqc_process_cc_parameter_frame(xqc_connection_t *conn, xqc_packet_in_t *packet_in)
+{
+    xqc_int_t ret = XQC_ERROR;
+    uint64_t bandwith;
+    uint64_t pacing_rate;
+    uint64_t queue_size;
+    uint64_t srtt;
+    uint64_t bw;
+
+    ret = xqc_parse_cc_parameter_frame(packet_in, conn, &bandwith, &pacing_rate, &bw, &queue_size, &srtt);
+    if (ret != XQC_OK) {
+        xqc_log(conn->log, XQC_LOG_ERROR,
+                "|xqc_parse_cc_parameter_frame error|");
+        return ret;
+    }
+    if(conn->app_proto_cbs.para_cb){
+        conn->app_proto_cbs.para_cb(conn, bandwith, pacing_rate, bw, queue_size, srtt);
+    }
+
+    xqc_path_ctx_t *path;
+    xqc_list_head_t *pos, *next;
+
+    xqc_list_head_t *head;
+    int congest = 0;
+    head = &conn->conn_send_queue->sndq_send_packets_high_pri;
+    xqc_list_for_each_safe(pos, next, &conn->conn_paths_list) {
+        path = xqc_list_entry(pos, xqc_path_ctx_t, path_list);
+
+        path->path_send_ctl->tunnel_rtt = srtt;
+
+        //TODO:暂时多路径下会出现问题，后期讨论
+        if(path->path_send_ctl->ctl_cong_callback->xqc_renew_cwnd_srtt){
+            path->path_send_ctl->ctl_cong_callback->xqc_renew_cwnd_srtt(path->path_send_ctl->ctl_cong, bandwith, pacing_rate, bw, queue_size, srtt, &path->path_send_ctl->sampler);
+            break;
+        }
+    }
+
+    //printf("server 收到数据：%ld，%f",cwnd, (double)srtt);
+    return XQC_OK;
+}
+
+uint64_t
+xqc_get_srtt_by_conn(xqc_connection_t *conn)
+{
+    if(conn == NULL)
+        return 0;
+    xqc_path_ctx_t *path;
+    xqc_list_head_t *pos, *next;
+
+    xqc_list_head_t *head;
+    int congest = 0;
+    head = &conn->conn_send_queue->sndq_send_packets_high_pri;
+    xqc_list_for_each_safe(pos, next, &conn->conn_paths_list) {
+        path = xqc_list_entry(pos, xqc_path_ctx_t, path_list);
+        return (uint64_t)path->path_send_ctl->ctl_srtt;
+    }
+    return 0;
+}
+
+
 
 
 xqc_int_t

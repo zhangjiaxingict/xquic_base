@@ -95,6 +95,89 @@ xqc_int_t xqc_parse_datagram_frame(xqc_packet_in_t *packet_in, xqc_connection_t 
     return XQC_OK;
 }
 
+/**
+ * generate datagram frame
+ */
+xqc_int_t xqc_gen_cc_parameter_frame(xqc_packet_out_t *packet_out, 
+    uint64_t cwnd, uint64_t pacing_rate, uint64_t bw, uint64_t queue_size, uint64_t srtt)
+{
+    
+    unsigned char *dst_buf = packet_out->po_buf + packet_out->po_used_size;
+    size_t dst_buf_len = packet_out->po_buf_size - packet_out->po_used_size;
+
+    unsigned char offset_bits, length_bits;
+    unsigned offset_vlen, length_vlen;
+    unsigned char *begin = dst_buf;
+
+    *dst_buf++ = 0x32;
+
+    int32_t cwnd_len = xqc_put_varint_len(cwnd);
+    int32_t pacing_rate_len = xqc_put_varint_len(pacing_rate);
+    int32_t bw_len = xqc_put_varint_len(bw); 
+    int32_t queue_size_len = xqc_put_varint_len(queue_size);
+    int32_t srtt_len = xqc_put_varint_len(srtt);
+
+    if (1 + cwnd_len + pacing_rate_len + bw_len + queue_size_len + srtt_len > dst_buf_len) {
+        return -XQC_ENOBUF;
+    }
+
+    dst_buf = xqc_put_varint(dst_buf, cwnd);
+    dst_buf = xqc_put_varint(dst_buf, pacing_rate);
+    dst_buf = xqc_put_varint(dst_buf, bw);
+    dst_buf = xqc_put_varint(dst_buf, queue_size);
+    dst_buf = xqc_put_varint(dst_buf, srtt);
+
+    packet_out->po_frame_types |= XQC_FRAME_BIT_CC_PARAMETER;
+    return dst_buf - begin;
+
+}
+
+
+xqc_int_t xqc_parse_cc_parameter_frame(xqc_packet_in_t *packet_in, xqc_connection_t *conn, 
+    uint64_t *p_cwnd, uint64_t *p_pacing_rate, uint64_t *p_bw, uint64_t *p_queue_size, uint64_t *p_srtt)
+{
+    unsigned char *p = packet_in->pos;
+    const unsigned char *end = packet_in->last;
+    const unsigned char first_byte = *p++;
+
+    int vlen;
+
+    vlen = xqc_vint_read(p, end, p_cwnd);
+    if (vlen < 0) {
+        return -XQC_EVINTREAD;
+    }
+    p += vlen;
+
+    vlen = xqc_vint_read(p, end, p_pacing_rate);
+    if (vlen < 0) {
+        return -XQC_EVINTREAD;
+    }
+    p += vlen;
+
+    vlen = xqc_vint_read(p, end, p_bw);
+    if (vlen < 0) {
+        return -XQC_EVINTREAD;
+    }
+    p += vlen;
+
+    vlen = xqc_vint_read(p, end, p_queue_size);
+    if (vlen < 0) {
+        return -XQC_EVINTREAD;
+    }
+    p += vlen;
+
+    vlen = xqc_vint_read(p, end, p_srtt);
+    if (vlen < 0) {
+        return -XQC_EVINTREAD;
+    }
+    p += vlen;
+
+    packet_in->pos = p;
+
+    packet_in->pi_frame_types |= XQC_FRAME_BIT_CC_PARAMETER;
+
+    return XQC_OK;
+}
 
 
 

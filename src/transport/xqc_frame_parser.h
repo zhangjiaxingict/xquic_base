@@ -158,4 +158,8 @@ xqc_int_t xqc_parse_path_available_frame(xqc_packet_in_t *packet_in,
     uint64_t *dcid_seq_num,
     uint64_t *path_status_seq_num, uint64_t *path_status);
 
+xqc_int_t xqc_gen_cc_parameter_frame(xqc_packet_out_t *packet_out, 
+    uint64_t cwnd, uint64_t pacing_rate, uint64_t bw, uint64_t queue_size, uint64_t srtt);
+xqc_int_t xqc_parse_cc_parameter_frame(xqc_packet_in_t *packet_in, xqc_connection_t *conn, 
+    uint64_t *p_cwnd, uint64_t *p_pacing_rate, uint64_t *p_bw, uint64_t *p_queue_size, uint64_t *p_srtt);
 #endif /*_XQC_FRAME_PARSER_H_INCLUDED_*/

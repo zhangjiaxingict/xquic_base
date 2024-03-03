@@ -155,6 +155,7 @@ typedef struct xqc_send_ctl_s {
     unsigned                    ctl_recent_lost_count[2];
     xqc_usec_t                  ctl_recent_stats_timestamp;
 
+    uint64_t                    tunnel_rtt;
 } xqc_send_ctl_t;
 
 

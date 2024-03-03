@@ -469,6 +469,8 @@ typedef ssize_t (*xqc_send_mmsg_ex_pt)(uint64_t path_id,
 typedef xqc_int_t (*xqc_stream_notify_pt)(xqc_stream_t *stream,
     void *strm_user_data);
 
+typedef void (*xqc_cc_para_callbacks_t)(xqc_connection_t *conn, uint64_t cwnd, uint64_t pacing_rate, uint64_t bw, uint64_t queue_size, uint64_t srtt);
+
 /**
  * @brief stream closing callback function, this will be triggered when some
  * error on a stream happens.
@@ -806,6 +808,9 @@ typedef struct xqc_app_proto_callbacks_s {
     /* QUIC datagram callback functions */
     xqc_datagram_callbacks_t    dgram_cbs;
 
+    /*new*/
+    xqc_cc_para_callbacks_t     para_cb;
+
 } xqc_app_proto_callbacks_t;
 
 typedef enum {
@@ -885,6 +890,8 @@ typedef struct xqc_congestion_control_callback_s {
     /* get estimation of bandwidth */
     uint32_t (*xqc_cong_ctl_get_bandwidth_estimate)(void *cong_ctl);
 
+    void (*xqc_renew_cwnd_srtt)(void *cong_ctl, uint64_t cwnd, uint64_t pacing_rate, uint64_t bw, uint64_t queue_size, uint64_t srtt,  xqc_sample_t *sampler);
+
     xqc_bbr_info_interface_t *xqc_cong_ctl_info_cb;
 } xqc_cong_ctrl_callback_t;
 
@@ -896,6 +903,7 @@ XQC_EXPORT_PUBLIC_API XQC_EXTERN const xqc_cong_ctrl_callback_t xqc_bbr2_cb;
 #endif
 XQC_EXPORT_PUBLIC_API XQC_EXTERN const xqc_cong_ctrl_callback_t xqc_bbr_cb;
 XQC_EXPORT_PUBLIC_API XQC_EXTERN const xqc_cong_ctrl_callback_t xqc_cubic_cb;
+XQC_EXPORT_PUBLIC_API XQC_EXTERN const xqc_cong_ctrl_callback_t xqc_bbr_w_cb;
 #ifdef XQC_ENABLE_UNLIMITED
 XQC_EXPORT_PUBLIC_API XQC_EXTERN const xqc_cong_ctrl_callback_t xqc_unlimited_cc_cb;
 #endif
@@ -1936,6 +1944,14 @@ xqc_bool_t xqc_conn_should_clear_0rtt_ticket(xqc_int_t conn_err);
  */
 XQC_EXPORT_PUBLIC_API
 xqc_conn_settings_t xqc_conn_get_conn_settings_template(xqc_conn_settings_type_t settings_type);
+
+XQC_EXPORT_PUBLIC_API
+xqc_int_t xqc_write_cc_parameter_frame_to_packet(xqc_connection_t *conn, uint64_t cwnd, uint64_t pacing_rate, uint64_t bw,
+    uint64_t queue_size, uint64_t srtt);
+
+XQC_EXPORT_PUBLIC_API
+uint64_t xqc_get_srtt_by_conn(xqc_connection_t *conn);
+
 
 #ifdef __cplusplus
 }

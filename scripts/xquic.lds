@@ -62,6 +62,7 @@ XQUIC_VERS_1.0 {
         xqc_bbr2_cb;
         xqc_reno_cb;
         xqc_cubic_cb;
+        xqc_bbr_w_cb;
         xqc_minrtt_scheduler_cb;
         xqc_interop_scheduler_cb;
         xqc_backup_scheduler_cb;
@@ -141,6 +142,9 @@ XQUIC_VERS_1.0 {
         xqc_conn_unset_pkt_filter_callback;
         xqc_conn_register_gp_timer;
         xqc_conn_get_max_pto;
+        xqc_engine_get_conn_by_scid;
+        xqc_demo_cli_hq_conn_create_notify;
+        xqc_get_srtt_by_conn;
     local:
         *;
 };

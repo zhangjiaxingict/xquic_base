@@ -34,6 +34,7 @@ typedef enum {
     XQC_FRAME_PATH_STANDBY,
     XQC_FRAME_PATH_AVAILABLE,
     XQC_FRAME_DATAGRAM,
+    XQC_FRAME_CC_PARAMETER,
     XQC_FRAME_Extension,
     XQC_FRAME_NUM,
 } xqc_frame_type_t;
@@ -65,6 +66,7 @@ typedef enum {
     XQC_FRAME_BIT_PATH_STANDBY          = 1 << XQC_FRAME_PATH_STANDBY,
     XQC_FRAME_BIT_PATH_AVAILABLE        = 1 << XQC_FRAME_PATH_AVAILABLE,
     XQC_FRAME_BIT_DATAGRAM              = 1 << XQC_FRAME_DATAGRAM,
+    XQC_FRAME_BIT_CC_PARAMETER          = 1 << XQC_FRAME_CC_PARAMETER,
     XQC_FRAME_BIT_Extension             = 1 << XQC_FRAME_Extension,
     XQC_FRAME_BIT_NUM                   = 1 << XQC_FRAME_NUM,
 } xqc_frame_type_bit_t;
@@ -161,5 +163,11 @@ xqc_int_t xqc_process_path_standby_frame(xqc_connection_t *conn, xqc_packet_in_t
 xqc_int_t xqc_process_path_available_frame(xqc_connection_t *conn, xqc_packet_in_t *packet_in);
 
 xqc_int_t xqc_process_datagram_frame(xqc_connection_t *conn, xqc_packet_in_t *packet_in);
+
+xqc_int_t
+xqc_process_cc_parameter_frame(xqc_connection_t *conn, xqc_packet_in_t *packet_in);
+
+uint64_t
+xqc_get_srtt_by_conn(xqc_connection_t *conn);
 
 #endif /* _XQC_FRAME_H_INCLUDED_ */

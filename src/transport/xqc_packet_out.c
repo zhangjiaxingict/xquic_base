@@ -1249,6 +1249,38 @@ error:
     return ret;
 }
 
+xqc_int_t
+xqc_write_cc_parameter_frame_to_packet(xqc_connection_t *conn, uint64_t cwnd, uint64_t pacing_rate, 
+    uint64_t bw, uint64_t queue_size, uint64_t srtt)
+{
+    xqc_int_t ret = XQC_ERROR;
+    xqc_packet_out_t *packet_out = NULL;
+
+    if (!(conn->conn_flag & XQC_CONN_FLAG_CAN_SEND_1RTT)) {
+        xqc_log(conn->log, XQC_LOG_DEBUG, "|does_not_support_0rtt_when_sending_cc_parameter|");
+        conn->conn_flag |= XQC_CONN_FLAG_DGRAM_WAIT_FOR_1RTT;
+        return -XQC_EAGAIN;
+        
+    }
+
+    packet_out = xqc_write_new_packet(conn, XQC_PTYPE_SHORT_HEADER);
+    if (packet_out == NULL) {
+        xqc_log(conn->log, XQC_LOG_ERROR, "|xqc_write_new_packet error|");
+        return -XQC_EWRITE_PKT;
+    }
+
+    ret = xqc_gen_cc_parameter_frame(packet_out, cwnd, pacing_rate, bw, queue_size, srtt);
+    if (ret < 0) {
+        xqc_log(conn->log, XQC_LOG_ERROR, "|xqc_gen_new_cc_parameter_frame error|");
+        goto error;
+    }
+    packet_out->po_used_size += ret;
+    return XQC_OK;
+
+error:
+    xqc_maybe_recycle_packet_out(packet_out, conn);
+    return ret;
+}
 
 xqc_int_t
 xqc_write_retire_conn_id_frame_to_packet(xqc_connection_t *conn, uint64_t seq_num)
