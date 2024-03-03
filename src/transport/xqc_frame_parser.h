@@ -21,6 +21,12 @@
 xqc_int_t xqc_gen_datagram_frame(xqc_packet_out_t *packet_out, 
     const unsigned char *payload, size_t size);
 
+/**
+ * generate datagram frame with feedback
+ */
+xqc_int_t xqc_gen_datagram_frame_fb(xqc_packet_out_t *packet_out, 
+    const unsigned char *payload, size_t size, rtc_feedback_info_t* feedback);
+
 xqc_int_t xqc_parse_datagram_frame(xqc_packet_in_t *packet_in, xqc_connection_t *conn,
     unsigned char **buffer, size_t *size);
 

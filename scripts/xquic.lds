@@ -118,6 +118,10 @@ XQUIC_VERS_1.0 {
         xqc_log_enable;
         xqc_h3_request_update_settings;
         xqc_stream_update_settings;
+        xqc_datagram_send_fb;
+        rtc_feedback_info_t;
+        xqc_socket_write_fb_pt;
+        xqc_datagram_send_fb;
     local:
         *;
 };

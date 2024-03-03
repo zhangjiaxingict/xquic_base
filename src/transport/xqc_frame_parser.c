@@ -49,6 +49,45 @@ xqc_int_t xqc_gen_datagram_frame(xqc_packet_out_t *packet_out,
     return XQC_OK;
 }
 
+/**
+ * generate datagram frame with feedback
+ */
+xqc_int_t xqc_gen_datagram_frame_fb(xqc_packet_out_t *packet_out, 
+    const unsigned char *payload, size_t size, rtc_feedback_info_t* feedback)
+{
+    if (packet_out == NULL) {
+        return -XQC_EPARAM;
+    }
+
+    unsigned char *dst_buf = packet_out->po_buf + packet_out->po_used_size;
+    size_t dst_buf_len = packet_out->po_buf_size - packet_out->po_used_size;
+    unsigned char *p = dst_buf + 1;
+
+    if ((size + 1 + XQC_DATAGRAM_LENGTH_FIELD_BYTES) > dst_buf_len) {
+        return -XQC_ENOBUF;
+    }
+
+    xqc_vint_write(p, size, XQC_DATAGRAM_LENGTH_FIELD_BYTES - 1, XQC_DATAGRAM_LENGTH_FIELD_BYTES);
+    p += XQC_DATAGRAM_LENGTH_FIELD_BYTES;
+
+    if (size > 0) {
+        xqc_memcpy(p, payload, size);
+    }
+
+    p += size;
+    
+    dst_buf[0] = 0x31;
+
+    packet_out->po_frame_types |= XQC_FRAME_BIT_DATAGRAM;
+    packet_out->po_used_size += p - dst_buf;
+    packet_out->feedback.frame_id = feedback->frame_id;
+    packet_out->feedback.sequence_id = feedback->sequence_id;
+    packet_out->feedback.total_cnt = feedback->total_cnt;
+    packet_out->rtc_feedback_flag = XQC_TRUE;
+
+    return XQC_OK;
+}
+
 xqc_int_t xqc_parse_datagram_frame(xqc_packet_in_t *packet_in, xqc_connection_t *conn,
     unsigned char **buffer, size_t *size)
 {

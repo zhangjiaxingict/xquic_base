@@ -52,6 +52,12 @@ typedef enum xqc_proto_version_s {
     XQC_VERSION_MAX
 } xqc_proto_version_t;
 
+typedef struct rtc_feedback_info_s {
+    uint64_t frame_id;
+    uint64_t sequence_id;
+    uint64_t total_cnt;
+} rtc_feedback_info_t;
+
 #define XQC_SUPPORT_VERSION_MAX         64
 
 
@@ -334,6 +340,9 @@ typedef void (*xqc_path_peer_addr_changed_nofity_pt)(xqc_connection_t *conn, uin
 typedef ssize_t (*xqc_socket_write_pt)(const unsigned char *buf, size_t size,
     const struct sockaddr *peer_addr, socklen_t peer_addrlen, void *conn_user_data);
 
+typedef ssize_t (*xqc_socket_write_fb_pt)(const unsigned char *buf, size_t size,
+    const struct sockaddr *peer_addr, socklen_t peer_addrlen, rtc_feedback_info_t* feedback_info, void *conn_user_data);
+
 /**
  * @brief sendmmsg callback function. the implementation of this shall send data with sendmmsg
  *
@@ -595,6 +604,8 @@ typedef struct xqc_transport_callbacks_s {
      * write socket callback, ALTERNATIVE with write_mmsg
      */
     xqc_socket_write_pt             write_socket;
+
+    xqc_socket_write_fb_pt          write_socket_fb;
 
     /**
      * write socket with send_mmsg callback, ALTERNATIVE with write_socket
@@ -1746,6 +1757,22 @@ void *xqc_datagram_get_user_data(xqc_connection_t *conn);
 XQC_EXPORT_PUBLIC_API
 xqc_int_t xqc_datagram_send(xqc_connection_t *conn, void *data, 
     size_t data_len, uint64_t *dgram_id, xqc_data_qos_level_t qos_level);
+
+/**
+ * @brief the API to send a datagram over the QUIC connection
+ * 
+ * @param conn the connection handle 
+ * @param data the data to be sent
+ * @param data_len the length of the data
+ * @param *dgram_id the pointer to return the id the datagram
+ * @para 
+ * @param qos level (must be the values defined in xqc_data_qos_level_t)
+ * @return <0 = error (-XQC_EAGAIN, -XQC_CLOSING, -XQC_EDGRAM_NOT_SUPPORTED, -XQC_EDGRAM_TOO_LARGE, ...), 
+ *         0 success
+ */
+XQC_EXPORT_PUBLIC_API
+xqc_int_t xqc_datagram_send_fb(xqc_connection_t *conn, void *data, 
+    size_t data_len, uint64_t *dgram_id, rtc_feedback_info_t* feedback, xqc_data_qos_level_t qos_level);
 
 /**
  * @brief the API to send a datagram over the QUIC connection

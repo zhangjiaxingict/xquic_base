@@ -1947,6 +1947,91 @@ xqc_send(xqc_connection_t *conn, xqc_path_ctx_t *path, unsigned char *data, unsi
     return sent;
 }
 
+ssize_t
+xqc_send_fb(xqc_connection_t *conn, xqc_path_ctx_t *path, unsigned char *data, unsigned int len, rtc_feedback_info_t * feedback_info)
+{
+    ssize_t sent;
+
+    if (conn->pkt_filter_cb) {
+        sent = conn->pkt_filter_cb(data, len, (struct sockaddr *)conn->peer_addr,
+                                   conn->peer_addrlen, conn->pkt_filter_cb_user_data);
+        if (sent < 0) {
+            xqc_log(conn->log, XQC_LOG_ERROR,  "|pkt_filter_cb error|conn:%p|"
+                    "size:%ud|sent:%z|", conn, len, sent);
+            return -XQC_EPACKET_FILETER_CALLBACK;
+        }
+        sent = len;
+
+    } else if (conn->transport_cbs.write_socket_fb) {
+        sent = conn->transport_cbs.write_socket_fb(data, len,
+                                                   (struct sockaddr *)path->peer_addr,
+                                                   path->peer_addrlen,
+                                                   feedback_info,
+                                                   xqc_conn_get_user_data(conn));
+        if (sent != len) {
+            xqc_log(conn->log, XQC_LOG_ERROR,
+                    "|write_socket error|conn:%p|size:%ud|sent:%z|", conn, len, sent);
+            xqc_log(conn->log, XQC_LOG_ERROR,
+                    "|write_socket error|path:%ui|path_addr:%s|peer_addrlen:%d|", 
+                    path->path_id, xqc_path_addr_str(path), (int)path->peer_addrlen);
+
+            /* if callback return XQC_SOCKET_ERROR, close the connection */
+            if (sent == XQC_SOCKET_ERROR) {
+                path->path_flag |= XQC_PATH_FLAG_SOCKET_ERROR;
+                if (xqc_conn_should_close(conn, path)) {
+                    xqc_log(conn->log, XQC_LOG_ERROR, "|conn:%p|socket exception, close connection|", conn);
+                    conn->conn_state = XQC_CONN_STATE_CLOSED;
+                }
+            }
+            return -XQC_ESOCKET;
+        }
+
+    } else if (conn->transport_cbs.write_socket_ex) {
+        sent = conn->transport_cbs.write_socket_ex(path->path_id, data, len,
+                                                   (struct sockaddr *)path->peer_addr,
+                                                   path->peer_addrlen,
+                                                   xqc_conn_get_user_data(conn));
+        if (sent != len) {
+            xqc_log(conn->log, XQC_LOG_ERROR,
+                    "|write_socket error|conn:%p|size:%ud|sent:%z|", conn, len, sent);
+            xqc_log(conn->log, XQC_LOG_ERROR,
+                    "|write_socket error|path:%ui|path_addr:%s|peer_addrlen:%d|", 
+                    path->path_id, xqc_path_addr_str(path), (int)path->peer_addrlen);
+
+            /* if callback return XQC_SOCKET_ERROR, close the connection */
+            if (sent == XQC_SOCKET_ERROR) {
+                path->path_flag |= XQC_PATH_FLAG_SOCKET_ERROR;
+                if (xqc_conn_should_close(conn, path)) {
+                    xqc_log(conn->log, XQC_LOG_ERROR, "|conn:%p|socket exception, close connection|", conn);
+                    conn->conn_state = XQC_CONN_STATE_CLOSED;
+                }
+            }
+            return -XQC_ESOCKET;
+        }
+
+    } else {
+        sent = conn->transport_cbs.write_socket(data, len,
+                                                (struct sockaddr *)conn->peer_addr,
+                                                conn->peer_addrlen,
+                                                xqc_conn_get_user_data(conn));
+        if (sent != len) {
+            xqc_log(conn->log, XQC_LOG_ERROR, 
+                    "|write_socket error|conn:%p|size:%ud|sent:%z|", conn, len, sent);
+
+            /* if callback return XQC_SOCKET_ERROR, close the connection */
+            if (sent == XQC_SOCKET_ERROR) {
+                xqc_log(conn->log, XQC_LOG_ERROR, "|conn:%p|socket exception, close connection|", conn);
+                conn->conn_state = XQC_CONN_STATE_CLOSED;
+            }
+            return -XQC_ESOCKET;
+        }
+    }
+
+    xqc_log_event(conn->log, TRA_DATAGRAMS_SENT, sent);
+
+    return sent;
+}
+
 /* send packets which have no packet number */
 ssize_t
 xqc_process_packet_without_pn(xqc_connection_t *conn, xqc_path_ctx_t *path, xqc_packet_out_t *packet_out)
@@ -1973,7 +2058,13 @@ xqc_send_packet_with_pn(xqc_connection_t *conn, xqc_path_ctx_t *path, xqc_packet
     packet_out->po_sent_time = now;
 
     /* send data */
-    ssize_t sent = xqc_send(conn, path, conn->enc_pkt, conn->enc_pkt_len);
+    ssize_t sent = 0;
+    if(packet_out->rtc_feedback_flag){
+        sent = xqc_send_fb(conn, path, conn->enc_pkt, conn->enc_pkt_len, &packet_out->feedback);
+    }else{
+        sent = xqc_send(conn, path, conn->enc_pkt, conn->enc_pkt_len);
+    }
+
     if (sent != conn->enc_pkt_len) {
         xqc_log(conn->log, XQC_LOG_ERROR,
                 "|write_socket error|conn:%p|path:%ui|pkt_num:%ui|size:%ud|sent:%z|pkt_type:%s|frame:%s|now:%ui|",

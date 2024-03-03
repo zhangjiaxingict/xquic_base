@@ -114,6 +114,8 @@ typedef struct xqc_packet_out_s {
 
     /* ping notification */
     xqc_ping_record_t      *po_pr;
+    rtc_feedback_info_t    feedback;
+    xqc_bool_t             rtc_feedback_flag;
 } xqc_packet_out_t;
 
 xqc_bool_t xqc_packet_out_on_specific_path(xqc_connection_t *conn, 
@@ -184,6 +186,10 @@ int xqc_write_stream_frame_to_packet(xqc_connection_t *conn, xqc_stream_t *strea
 int xqc_write_datagram_frame_to_packet(xqc_connection_t *conn, xqc_pkt_type_t pkt_type, 
     const unsigned char *data, size_t data_len, uint64_t *dgram_id, xqc_bool_t use_supplied_dgram_id,
     xqc_data_qos_level_t qos_level);
+
+int xqc_write_datagram_frame_to_packet_fb(xqc_connection_t *conn, xqc_pkt_type_t pkt_type, 
+    const unsigned char *data, size_t data_len, uint64_t *dgram_id, xqc_bool_t use_supplied_dgram_id,
+    rtc_feedback_info_t* feedback, xqc_data_qos_level_t qos_level);
 
 int xqc_write_handshake_done_frame_to_packet(xqc_connection_t *conn);
 
