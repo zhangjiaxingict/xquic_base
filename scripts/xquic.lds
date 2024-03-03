@@ -145,6 +145,7 @@ XQUIC_VERS_1.0 {
         xqc_engine_get_conn_by_scid;
         xqc_demo_cli_hq_conn_create_notify;
         xqc_get_srtt_by_conn;
+        xqc_write_cc_parameter_frame_to_packet;
     local:
         *;
 };

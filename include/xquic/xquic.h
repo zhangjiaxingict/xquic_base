@@ -1949,9 +1949,7 @@ xqc_int_t xqc_write_cc_parameter_frame_to_packet(xqc_connection_t *conn, uint64_
 XQC_EXPORT_PUBLIC_API
 xqc_conn_settings_t xqc_conn_get_conn_settings_template(xqc_conn_settings_type_t settings_type);
 
-XQC_EXPORT_PUBLIC_API
-xqc_int_t xqc_write_cc_parameter_frame_to_packet(xqc_connection_t *conn, uint64_t cwnd, uint64_t pacing_rate, uint64_t bw,
-    uint64_t queue_size, uint64_t srtt);
+
 
 XQC_EXPORT_PUBLIC_API
 uint64_t xqc_get_srtt_by_conn(xqc_connection_t *conn);
