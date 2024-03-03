@@ -1935,6 +1935,10 @@ xqc_int_t xqc_lb_cid_encryption(uint8_t *cid_buf, size_t enc_len, uint8_t *out_b
 XQC_EXPORT_PUBLIC_API
 xqc_bool_t xqc_conn_should_clear_0rtt_ticket(xqc_int_t conn_err);
 
+XQC_EXPORT_PUBLIC_API
+xqc_int_t xqc_write_cc_parameter_frame_to_packet(xqc_connection_t *conn, uint64_t cwnd, uint64_t pacing_rate, uint64_t bw,
+    uint64_t queue_size, uint64_t srtt);
+
 /**
  * @brief Users call this function to get a template of conn settings, which serves
  *        as the starting point for users who want to refine conn settings according 
