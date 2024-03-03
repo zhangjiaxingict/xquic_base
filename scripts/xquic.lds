@@ -60,6 +60,7 @@ XQUIC_VERS_1.0 {
         xqc_conn_get_stats;
         xqc_bbr_cb;
         xqc_bbr2_cb;
+        xqc_white_cb;
         xqc_reno_cb;
         xqc_cubic_cb;
         xqc_bbr_w_cb;
@@ -146,6 +147,13 @@ XQUIC_VERS_1.0 {
         xqc_demo_cli_hq_conn_create_notify;
         xqc_get_srtt_by_conn;
         xqc_write_cc_parameter_frame_to_packet;
+        xqc_hq_conn_get_peer_addr;
+        xqc_hq_ctx_init;
+        xqc_hq_conn_set_user_data;
+        xqc_demo_svr_hq_req_create_notify;
+        xqc_hq_request_send_rsp;
+        xqc_hq_request_recv_req;
+        xqc_demo_svr_init_alpn_ctx;
     local:
         *;
 };
