@@ -1153,6 +1153,7 @@ typedef struct xqc_conn_settings_s {
     uint32_t                    anti_amplification_limit;   /* limit of anti-amplification, default 3 */
     uint64_t                    keyupdate_pkt_threshold;    /* packet limit of a single 1-rtt key, 0 for unlimited */
     size_t                      max_pkt_out_size;
+    int                         adaptive_ack_frequency;
 
     /*
     * datgram option
