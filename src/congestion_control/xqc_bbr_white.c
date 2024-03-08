@@ -16,7 +16,7 @@
 #define XQC_BBR_W_MIN_WINDOW          (4 * XQC_BBR_W_MAX_DATAGRAMSIZE)
 #define XQC_BBR_W_MAX_WINDOW          (100 * XQC_BBR_W_MAX_DATAGRAMSIZE)
 
-#define XQC_BBR_W_MAX_WINDOW_W          (10000 * XQC_BBR_W_MAX_DATAGRAMSIZE)
+#define XQC_BBR_W_MAX_WINDOW_W          (1000000 * XQC_BBR_W_MAX_DATAGRAMSIZE)
 /* The RECOMMENDED value is the minimum of 10 * kMaxDatagramSize and max(2* kMaxDatagramSize, 14720)) */
 /* same init window as cubic */
 /* 32 is too aggressive. we have observed heavy bufferbloat events from online deployment */
