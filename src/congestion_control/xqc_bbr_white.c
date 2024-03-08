@@ -15,6 +15,8 @@
 #define XQC_BBR_W_MAX_DATAGRAMSIZE    XQC_MSS
 #define XQC_BBR_W_MIN_WINDOW          (4 * XQC_BBR_W_MAX_DATAGRAMSIZE)
 #define XQC_BBR_W_MAX_WINDOW          (100 * XQC_BBR_W_MAX_DATAGRAMSIZE)
+
+#define XQC_BBR_W_MAX_WINDOW_W          (10000 * XQC_BBR_W_MAX_DATAGRAMSIZE)
 /* The RECOMMENDED value is the minimum of 10 * kMaxDatagramSize and max(2* kMaxDatagramSize, 14720)) */
 /* same init window as cubic */
 /* 32 is too aggressive. we have observed heavy bufferbloat events from online deployment */
@@ -141,8 +143,8 @@ xqc_bbr_init(void *cong_ctl, xqc_sample_t *sampler, xqc_cc_params_t cc_params)
     bbr->probe_rtt_round_done_stamp = 0;
     bbr->packet_conservation = FALSE;
     bbr->prior_cwnd = 0;
-    bbr->initial_congestion_window = XQC_BBR_W_INITIAL_WINDOW;
-    bbr->congestion_window = bbr->initial_congestion_window;
+    bbr->initial_congestion_window = XQC_BBR_W_MAX_WINDOW_W;
+    bbr->congestion_window = XQC_BBR_W_MAX_WINDOW_W;
     bbr->has_srtt = 0;
     bbr->idle_restart = 0;
     bbr->packet_conservation = 0;
