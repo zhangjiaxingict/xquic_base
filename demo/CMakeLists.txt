@@ -39,6 +39,9 @@ include_directories(
     ${LIBEVENT_INCLUDE_DIR}
 )
 
+
+link_directories(${SSL_LIB_PATH})
+
 add_executable(demo_server ${DEMO_SERVER_SOURCES})
 add_executable(demo_client ${DEMO_CLIENT_SOURCES})
 

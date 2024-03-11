@@ -44,7 +44,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
         ${GETOPT_SOURCES}
     )
 endif()
-
+link_directories(${SSL_LIB_PATH})
 
 ### test client/server ###
 add_executable(test_server ${TEST_SERVER_SOURCES})
@@ -61,7 +61,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Windows")
 else()
     set(APP_DEPEND_LIBS
         xquic-static
-        ${SSL_LIB_PATH}
+        "ssl crypto"
         ${LIBEVENT_LIBRARY}
         -lm
         dl

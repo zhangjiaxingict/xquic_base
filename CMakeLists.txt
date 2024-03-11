@@ -21,54 +21,56 @@ endif()
 
 
 # SSL lib type, xquic support babassl and boringssl interfaces
-if(NOT SSL_TYPE)
-    set(SSL_TYPE "babassl")
-    message(NOTICE "-- SSL_TYPE not set, use default babassl")
-endif()
+# if(NOT SSL_TYPE)
+#     set(SSL_TYPE "babassl")
+#     message(NOTICE "-- SSL_TYPE not set, use default babassl")
+# endif()
 
-if(${SSL_TYPE} MATCHES "babassl")
-    # PATH of ssl, by default XQUIC will use babassl installed in
-    # /usr/local/babassl if SSL_PATH is not set
-    if(NOT SSL_PATH)
-        set(SSL_PATH "/usr/local/babassl")
-        message(NOTICE "-- SSL_PATH not set, use default ${SSL_PATH}")
-    endif()
+# if(${SSL_TYPE} MATCHES "babassl")
+#     # PATH of ssl, by default XQUIC will use babassl installed in
+#     # /usr/local/babassl if SSL_PATH is not set
+#     if(NOT SSL_PATH)
+#         set(SSL_PATH "/usr/local/babassl")
+#         message(NOTICE "-- SSL_PATH not set, use default ${SSL_PATH}")
+#     endif()
 
-elseif(${SSL_TYPE} MATCHES "boringssl")
-    add_definitions(-DNOCRYPT=1)
-    # PATH of ssl, by default XQUIC will use boringssl in third_party
-    if(NOT SSL_PATH)
-        set(SSL_PATH ${CMAKE_CURRENT_SOURCE_DIR}/third_party/boringssl)
-        message(NOTICE "-- SSL_PATH not set, use default ${SSL_PATH}")
-    endif()
-endif()
+# elseif(${SSL_TYPE} MATCHES "boringssl")
+#     add_definitions(-DNOCRYPT=1)
+#     # PATH of ssl, by default XQUIC will use boringssl in third_party
+#     if(NOT SSL_PATH)
+#         set(SSL_PATH ${CMAKE_CURRENT_SOURCE_DIR}/third_party/boringssl)
+#         message(NOTICE "-- SSL_PATH not set, use default ${SSL_PATH}")
+#     endif()
+# endif()
 
-# Users can use both SSL_DIR or SSL_PATH to specify the ssl path to find the ssl
-# module, if both are defined, SSL_DIR will be used.
-if(NOT SSL_DIR)
-    if(NOT SSL_PATH)
-        # at least SSL_DIR or SSL_PATH shall be set
-        message(FATAL_ERROR "SSL_PATH not set")
-    else()
-        set(SSL_DIR ${SSL_PATH})
-    endif()
-endif()
+# # Users can use both SSL_DIR or SSL_PATH to specify the ssl path to find the ssl
+# # module, if both are defined, SSL_DIR will be used.
+# if(NOT SSL_DIR)
+#     if(NOT SSL_PATH)
+#         # at least SSL_DIR or SSL_PATH shall be set
+#         message(FATAL_ERROR "SSL_PATH not set")
+#     else()
+#         set(SSL_DIR ${SSL_PATH})
+#     endif()
+# endif()
 
 
 # find ssl module from SSL_DIR.
-find_package(SSL)
+#find_package(SSL)
 
-if(NOT SSL_FOUND)
-    message(FATAL_ERROR "ssl moudle not found")
-endif(NOT SSL_FOUND)
+# if(NOT SSL_FOUND)
+#     message(FATAL_ERROR "ssl moudle not found")
+# endif(NOT SSL_FOUND)
 
-if(NOT SSL_LIBRARIES_STATIC)
-    message(FATAL_ERROR "ssl/crypto static library not found")
-endif(NOT SSL_LIBRARIES_STATIC)
+# if(NOT SSL_LIBRARIES_STATIC)
+#     message(FATAL_ERROR "ssl/crypto static library not found")
+# endif(NOT SSL_LIBRARIES_STATIC)
 
 # compat with elder macros
-set(SSL_LIB_PATH ${SSL_LIBRARIES_STATIC})
-set(SSL_INC_PATH ${SSL_INCLUDE_DIR})
+
+set(SSL_TYPE "boringssl")
+set(SSL_LIB_PATH "/usr/lib/x86_64-linux-gnu/android")
+set(SSL_INC_PATH "/usr/include/android/")
 
 MESSAGE("-- SSL_TYPE: ${SSL_TYPE}")
 MESSAGE("-- SSL_PATH: ${SSL_PATH}")
@@ -321,7 +323,7 @@ set (
     ${CONGESTION_CONTROL_SOURCES}
 )
 
-
+link_directories(${SSL_LIB_PATH})
 
 # target
 add_library(
@@ -340,7 +342,7 @@ if(PLATFORM MATCHES "mac")
     target_link_libraries(
         xquic
         "-ldl -Wl,-all_load"
-        ${SSL_LIB_PATH}
+        "ssl crypto"
         "-Wl"
         -lpthread
     )
@@ -348,7 +350,7 @@ else()
     target_link_libraries(
         xquic
         "-ldl -Wl,--whole-archive -Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/scripts/xquic.lds"
-        ${SSL_LIB_PATH}
+        "-lssl -lcrypto"
         "-Wl,--no-whole-archive"
         -lpthread
     )
