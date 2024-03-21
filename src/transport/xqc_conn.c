@@ -5839,6 +5839,18 @@ xqc_conn_available_paths(xqc_engine_t *engine, const xqc_cid_t *cid)
     return available_paths;
 }
 
+uint32_t xqc_con_get_pacing_rate(xqc_connection_t * xc_conn){
+    xqc_path_ctx_t *path;
+    xqc_list_head_t *pos, *next;
+
+    xqc_list_for_each_safe(pos, next, &xc_conn->conn_paths_list) {
+        path = xqc_list_entry(pos, xqc_path_ctx_t, path_list);
+        return path->path_send_ctl->ctl_cong_callback->
+                      xqc_cong_ctl_get_pacing_rate(path->path_send_ctl->ctl_cong);
+    }
+    return 0;
+    
+}
 
 #ifdef XQC_COMPAT_GENERATE_SR_PKT
 

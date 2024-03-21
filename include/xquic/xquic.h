@@ -1926,6 +1926,7 @@ XQC_EXPORT_PUBLIC_API
 xqc_int_t xqc_path_get_local_addr(xqc_connection_t *conn, uint64_t path_id,
     struct sockaddr *addr, socklen_t addr_cap, socklen_t *local_addr_len);
 
+
     
 
 /**
@@ -1964,6 +1965,8 @@ xqc_bool_t xqc_conn_should_clear_0rtt_ticket(xqc_int_t conn_err);
 XQC_EXPORT_PUBLIC_API
 xqc_conn_settings_t xqc_conn_get_conn_settings_template(xqc_conn_settings_type_t settings_type);
 
+
+uint32_t xqc_con_get_pacing_rate(xqc_connection_t * xc_conn);
 #ifdef __cplusplus
 }
 #endif

@@ -122,6 +122,8 @@ XQUIC_VERS_1.0 {
         rtc_feedback_info_t;
         xqc_socket_write_fb_pt;
         xqc_datagram_send_fb;
+        xqc_con_get_pacing_rate;
+
     local:
         *;
 };

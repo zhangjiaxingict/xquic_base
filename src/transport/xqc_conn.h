@@ -653,4 +653,6 @@ xqc_int_t xqc_conn_send_ping_internal(xqc_connection_t *conn, void *ping_user_da
 
 void xqc_conn_encode_mp_settings(xqc_connection_t *conn, char *buf, size_t buf_sz);
 
+uint32_t xqc_con_get_pacing_rate(xqc_connection_t * xc_conn);
+
 #endif /* _XQC_CONN_H_INCLUDED_ */
