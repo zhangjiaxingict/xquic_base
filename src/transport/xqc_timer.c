@@ -71,6 +71,13 @@ xqc_timer_loss_detection_timeout(xqc_timer_type_t type, xqc_usec_t now, void *us
         xqc_send_ctl_detect_lost(send_ctl, conn->conn_send_queue, pns, now);
         xqc_log(conn->log, XQC_LOG_DEBUG, "|xqc_send_ctl_set_loss_detection_timer|loss|");
         xqc_send_ctl_set_loss_detection_timer(send_ctl);
+
+        xqc_log(conn->log, XQC_LOG_TEST, "|xqc_send_ctl_detect_lost|");
+        /* Time threshold loss Detection */
+        xqc_send_ctl_detect_lost(send_ctl, conn->conn_send_queue, pns, now);
+        xqc_log(conn->log, XQC_LOG_DEBUG, "|xqc_send_ctl_set_loss_detection_timer|loss|");
+        xqc_send_ctl_set_loss_detection_timer(send_ctl);
+
         return;
     }
 

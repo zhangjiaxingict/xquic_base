@@ -41,6 +41,8 @@ xqc_log_event_type(xqc_log_level_t level)
         return GEN_INFO;
     case XQC_LOG_DEBUG:
         return GEN_DEBUG;
+    case XQC_LOG_TEST:
+        return GEN_TEST;
     default:
         return GEN_DEBUG;
     }
@@ -108,6 +110,8 @@ xqc_log_type_2_level(xqc_log_type_t type)
     case QPACK_HEADERS_DECODED:
     case GEN_DEBUG:
         return XQC_LOG_DEBUG;
+    case GEN_TEST:
+        return XQC_LOG_TEST;
     default:
         return XQC_LOG_DEBUG;
     }
@@ -168,6 +172,7 @@ xqc_log_type_str(xqc_log_type_t type)
             [GEN_STATS]                         = "stats",
             [GEN_INFO]                          = "info",
             [GEN_DEBUG]                         = "debug",
+            [GEN_TEST]                          = "test",
     };
     return event_type2str[type];
 }

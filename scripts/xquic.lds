@@ -155,6 +155,7 @@ XQUIC_VERS_1.0 {
         xqc_hq_request_recv_req;
         xqc_demo_svr_init_alpn_ctx;
         xqc_now;
+        xqc_conn_get_unscheduled_bytes;
     local:
         *;
 };

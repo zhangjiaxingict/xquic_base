@@ -110,6 +110,7 @@ typedef enum {
     GEN_REPORT,
     GEN_FATAL,
     GEN_ERROR,
+    GEN_TEST,
     GEN_WARN,
     GEN_STATS,
     GEN_INFO,
@@ -221,6 +222,13 @@ xqc_log_implement(xqc_log_t *log, xqc_log_type_t type, const char *func, const c
     do {\
         if ((log)->log_level >= XQC_LOG_ERROR) { \
             xqc_log_implement(log, xqc_log_event_type(XQC_LOG_ERROR), __FUNCTION__, __VA_ARGS__); \
+        } \
+    } while (0)
+
+#define xqc_log_test(log, ...) \
+    do {\
+        if ((log)->log_level >= XQC_LOG_TEST) { \
+            xqc_log_implement(log, xqc_log_event_type(XQC_LOG_TEST), __FUNCTION__, __VA_ARGS__); \
         } \
     } while (0)
 

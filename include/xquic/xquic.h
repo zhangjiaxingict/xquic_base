@@ -1957,6 +1957,8 @@ xqc_conn_settings_t xqc_conn_get_conn_settings_template(xqc_conn_settings_type_t
 XQC_EXPORT_PUBLIC_API
 uint64_t xqc_get_srtt_by_conn(xqc_connection_t *conn);
 
+XQC_EXPORT_PUBLIC_API
+uint64_t xqc_conn_get_unscheduled_bytes(xqc_connection_t *conn);
 
 #ifdef __cplusplus
 }

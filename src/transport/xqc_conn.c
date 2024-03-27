@@ -5452,6 +5452,7 @@ end:
     return ret;
 }
 
+
 uint64_t 
 xqc_conn_get_unscheduled_bytes(xqc_connection_t *conn)
 {
@@ -5480,7 +5481,6 @@ xqc_conn_get_unscheduled_bytes(xqc_connection_t *conn)
         return 0;
     }
 }
-
 
 xqc_conn_type_t
 xqc_conn_get_type(xqc_connection_t *conn)
