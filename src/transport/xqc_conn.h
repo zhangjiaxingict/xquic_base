@@ -655,4 +655,7 @@ void xqc_conn_encode_mp_settings(xqc_connection_t *conn, char *buf, size_t buf_s
 
 uint32_t xqc_con_get_pacing_rate(xqc_connection_t * xc_conn);
 
+xqc_int_t
+xqc_process_feedback(xqc_connection_t *conn, uint64_t pacing_rate);
+
 #endif /* _XQC_CONN_H_INCLUDED_ */

@@ -113,6 +113,7 @@ XQUIC_VERS_1.0 {
         xqc_conn_should_clear_0rtt_ticket;
         xqc_unlimited_cc_cb;
         xqc_copa_cb;
+        xqc_bbr_white_cb;
         xqc_conn_get_conn_settings_template;
         xqc_conn_get_lastest_rtt;
         xqc_log_enable;
@@ -123,6 +124,7 @@ XQUIC_VERS_1.0 {
         xqc_socket_write_fb_pt;
         xqc_datagram_send_fb;
         xqc_con_get_pacing_rate;
+        xqc_process_feedback;
 
     local:
         *;

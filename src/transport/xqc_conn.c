@@ -5852,6 +5852,28 @@ uint32_t xqc_con_get_pacing_rate(xqc_connection_t * xc_conn){
     
 }
 
+xqc_int_t
+xqc_process_feedback(xqc_connection_t *conn, uint64_t pacing_rate)
+{
+    xqc_path_ctx_t *path;
+    xqc_list_head_t *pos, *next;
+
+    xqc_list_head_t *head;
+    int congest = 0;
+    head = &conn->conn_send_queue->sndq_send_packets_high_pri;
+    xqc_list_for_each_safe(pos, next, &conn->conn_paths_list) {
+        path = xqc_list_entry(pos, xqc_path_ctx_t, path_list);
+
+        //TODO:暂时多路径下会出现问题，后期讨论
+        if(path->path_send_ctl->ctl_cong_callback->xqc_renew_cwnd_srtt){
+            path->path_send_ctl->ctl_cong_callback->xqc_renew_cwnd_srtt(path->path_send_ctl->ctl_cong, pacing_rate, &path->path_send_ctl->sampler);
+            break;
+        }
+    }
+
+    return XQC_OK;
+}
+
 #ifdef XQC_COMPAT_GENERATE_SR_PKT
 
 xqc_int_t
