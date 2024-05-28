@@ -97,7 +97,7 @@ typedef enum {
  * PING and PADDING frames contain no information, so lost PING or
  *     PADDING frames do not require repair
  */
-#define XQC_NEED_REPAIR(types) ((types) & ~(XQC_FRAME_BIT_ACK| XQC_FRAME_BIT_PADDING | XQC_FRAME_BIT_PING | XQC_FRAME_BIT_CONNECTION_CLOSE | XQC_FRAME_BIT_DATAGRAM))
+#define XQC_NEED_REPAIR(types) ((types) & ~(XQC_FRAME_BIT_ACK| XQC_FRAME_BIT_PADDING | XQC_FRAME_BIT_PING | XQC_FRAME_BIT_CONNECTION_CLOSE ))
 
 
 const char *xqc_frame_type_2_str(xqc_frame_type_bit_t type_bit);
