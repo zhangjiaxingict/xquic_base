@@ -2065,7 +2065,7 @@ xqc_send_packet_with_pn(xqc_connection_t *conn, xqc_path_ctx_t *path, xqc_packet
         sent = xqc_send(conn, path, conn->enc_pkt, conn->enc_pkt_len);
     }
 
-    if (sent != conn->enc_pkt_len) {
+    if (sent != conn->enc_pkt_len && sent !=conn->enc_pkt_len+4*sizeof(uint64_t)) {
         xqc_log(conn->log, XQC_LOG_ERROR,
                 "|write_socket error|conn:%p|path:%ui|pkt_num:%ui|size:%ud|sent:%z|pkt_type:%s|frame:%s|now:%ui|",
                 conn, path->path_id, packet_out->po_pkt.pkt_num, packet_out->po_used_size, sent,
