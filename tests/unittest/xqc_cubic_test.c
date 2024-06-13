@@ -12,7 +12,7 @@ print_cubic(xqc_cubic_t *cubic)
 {
 
 #ifdef DEBUG_PRINT
-    printf("cwnd:%llu, tcp_cwnd:%llu, last_max_cwnd:%llu, ssthresh:%llu, epoch_start:%llu, bic_origin_point:%llu\n",
+    printf("cwnd:%llu,  :%llu, last_max_cwnd:%llu, ssthresh:%llu, epoch_start:%llu, bic_origin_point:%llu\n",
            cubic->cwnd, cubic->tcp_cwnd, cubic->last_max_cwnd, cubic->ssthresh, cubic->epoch_start, cubic->bic_origin_point);
 #endif
 }

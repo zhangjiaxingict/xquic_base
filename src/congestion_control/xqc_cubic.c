@@ -173,6 +173,7 @@ xqc_cubic_on_lost(void *cong_ctl, xqc_usec_t lost_sent_time)
     cubic->cwnd = xqc_max(cubic->cwnd, cubic->min_cwnd);
     cubic->tcp_cwnd = cubic->cwnd;
     cubic->ssthresh = cubic->cwnd;
+
 }
 
 

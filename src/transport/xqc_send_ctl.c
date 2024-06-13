@@ -333,7 +333,7 @@ xqc_send_ctl_info_circle_record(xqc_send_ctl_t *send_ctl)
     if (conn->conn_type != XQC_CONN_TYPE_SERVER) {
         return; /* client do not need record */
     }
-    if (conn->log->log_level < XQC_LOG_STATS) {
+    if (conn->log->log_level < XQC_LOG_TEST) {
         return;
     }
 
@@ -373,24 +373,17 @@ xqc_send_ctl_info_circle_record(xqc_send_ctl_t *send_ctl)
         slow_start = send_ctl->ctl_cong_callback->xqc_cong_ctl_in_slow_start(send_ctl->ctl_cong);
     }
     uint64_t srtt = send_ctl->ctl_srtt;
-    xqc_conn_log(conn, XQC_LOG_STATS,
+    xqc_conn_log(conn, XQC_LOG_TEST,
                  "|path:%ui|"
                  "|cwnd:%ui|inflight:%ud|mode:%ud|applimit:%ud|pacing_rate:%ui|bw:%ui|"
-                 "srtt:%ui|latest_rtt:%ui|min_rtt:%ui|send:%ud|lost:%ud|tlp:%ud|recv:%ud|"
-                 "recovery:%ud|slow_start:%ud|conn_life:%ui|acked:%ui|delivered:%ui|"
-                 "is_cwnd_limited:%d|",
+                 "srtt:%ui|latest_rtt:%ui|min_rtt:%ui|send:%ud|lost:%ud|tlp:%ud|recv:%ud|",
                  send_ctl->ctl_path->path_id,
                  cwnd, send_ctl->ctl_bytes_in_flight,
                  mode, send_ctl->ctl_app_limited, pacing_rate, bw,
                  srtt, send_ctl->ctl_latest_rtt, min_rtt,
                  send_ctl->ctl_send_count, send_ctl->ctl_lost_count,
                  send_ctl->ctl_tlp_count,
-                 send_ctl->ctl_recv_count,
-                 recovery, slow_start,
-                 now - conn->conn_create_time,
-                 send_ctl->ctl_delivered - send_ctl->ctl_prior_delivered,
-                 send_ctl->ctl_delivered,
-                 send_ctl->ctl_is_cwnd_limited);
+                 send_ctl->ctl_recv_count);
 
 }
 
@@ -595,7 +588,7 @@ xqc_send_ctl_update_cwnd_limited(xqc_send_ctl_t *send_ctl)
     }
     uint32_t cwnd_bytes = send_ctl->ctl_cong_callback->xqc_cong_ctl_get_cwnd(send_ctl->ctl_cong);
     /* If we can not send the next full-size packet, we are CWND limited. */
-    xqc_log(send_ctl->ctl_conn->log, XQC_LOG_DEBUG, "|path:%ui|cwnd:%ud|inflight:%ud|",
+    xqc_log(send_ctl->ctl_conn->log, XQC_LOG_TEST, "|path:%ui|cwnd:%ud|inflight:%ud|",
             send_ctl->ctl_path->path_id, cwnd_bytes, send_ctl->ctl_bytes_in_flight);
       
     send_ctl->ctl_is_cwnd_limited = 0;
@@ -617,9 +610,11 @@ xqc_send_ctl_on_packet_sent(xqc_send_ctl_t *send_ctl, xqc_pn_ctl_t *pn_ctl, xqc_
     xqc_sample_on_sent(packet_out, send_ctl, now);
 
     xqc_packet_number_t orig_pktnum = packet_out->po_origin ? packet_out->po_origin->po_pkt.pkt_num : 0;
+    /*增加此处日志*/
     xqc_log(send_ctl->ctl_conn->log, XQC_LOG_DEBUG,
             "|conn:%p|path:%ui|pkt_num:%ui|origin_pktnum:%ui|size:%ud|enc_size:%ud|pkt_type:%s|frame:%s|conn_state:%s|po_in_flight:%d|",
-            send_ctl->ctl_conn, send_ctl->ctl_path->path_id, packet_out->po_pkt.pkt_num, orig_pktnum, packet_out->po_used_size, packet_out->po_enc_size,
+            send_ctl->ctl_conn,
+            send_ctl->ctl_path->path_id, packet_out->po_pkt.pkt_num, orig_pktnum, packet_out->po_used_size, packet_out->po_enc_size,
             xqc_pkt_type_2_str(packet_out->po_pkt.pkt_type),
             xqc_frame_type_2_str(packet_out->po_frame_types),
             xqc_conn_state_2_str(send_ctl->ctl_conn->conn_state),
