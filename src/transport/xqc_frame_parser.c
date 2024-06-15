@@ -83,6 +83,7 @@ xqc_int_t xqc_gen_datagram_frame_fb(xqc_packet_out_t *packet_out,
     packet_out->feedback.frame_id = feedback->frame_id;
     packet_out->feedback.sequence_id = feedback->sequence_id;
     packet_out->feedback.total_cnt = feedback->total_cnt;
+    packet_out->feedback.strategy_id = feedback->strategy_id;
     packet_out->rtc_feedback_flag = XQC_TRUE;
 
     return XQC_OK;
