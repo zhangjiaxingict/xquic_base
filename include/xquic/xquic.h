@@ -53,9 +53,10 @@ typedef enum xqc_proto_version_s {
 } xqc_proto_version_t;
 
 typedef struct rtc_feedback_info_s {
-    uint64_t frame_id;
-    uint64_t sequence_id;
-    uint64_t total_cnt;
+    uint32_t frame_id;
+    uint32_t sequence_id;
+    uint32_t total_cnt;
+    uint32_t strategy_id;
 } rtc_feedback_info_t;
 
 #define XQC_SUPPORT_VERSION_MAX         64
@@ -1970,6 +1971,9 @@ xqc_conn_settings_t xqc_conn_get_conn_settings_template(xqc_conn_settings_type_t
 
 XQC_EXPORT_PUBLIC_API
 xqc_int_t xqc_process_feedback(xqc_connection_t *conn, uint64_t pacing_rate);
+
+XQC_EXPORT_PUBLIC_API
+uint64_t xqc_conn_get_unscheduled_bytes(xqc_connection_t *conn);
 
 uint32_t xqc_con_get_pacing_rate(xqc_connection_t * xc_conn);
 #ifdef __cplusplus

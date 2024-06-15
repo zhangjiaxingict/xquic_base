@@ -925,8 +925,9 @@ xqc_bbr_in_recovery(void *cong) {
 void xqc_bbr_w_renew_cwnd_srtt(void *cong_ctl, uint64_t pacing_rate, xqc_sample_t *sampler)
 {
     xqc_bbr_w_t *bbr = (xqc_bbr_w_t *)cong_ctl;
- 
-    xqc_bbr_update_bandwidth(bbr, sampler, pacing_rate/8);
+
+    bbr->pacing_rate = pacing_rate;
+    xqc_bbr_update_bandwidth(bbr, sampler, pacing_rate);
     bbr->cycle_idx =2;
    
 }
