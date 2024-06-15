@@ -1976,6 +1976,8 @@ XQC_EXPORT_PUBLIC_API
 uint64_t xqc_conn_get_unscheduled_bytes(xqc_connection_t *conn);
 
 uint32_t xqc_con_get_pacing_rate(xqc_connection_t * xc_conn);
+
+void xqc_conn_empty_packets(xqc_connection_t *conn);
 #ifdef __cplusplus
 }
 #endif

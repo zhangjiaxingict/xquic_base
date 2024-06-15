@@ -126,7 +126,8 @@ XQUIC_VERS_1.0 {
         xqc_con_get_pacing_rate;
         xqc_process_feedback;
         xqc_conn_get_unscheduled_bytes;
-        
+        xqc_conn_empty_packets;
+
     local:
         *;
 };
