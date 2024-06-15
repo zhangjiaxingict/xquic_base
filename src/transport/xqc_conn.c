@@ -1968,7 +1968,7 @@ xqc_send_fb(xqc_connection_t *conn, xqc_path_ctx_t *path, unsigned char *data, u
                                                    path->peer_addrlen,
                                                    feedback_info,
                                                    xqc_conn_get_user_data(conn));
-        if (sent != len+4*sizeof(uint64_t) && sent != len) {
+        if (sent != len+3*sizeof(uint64_t) && sent != len) {
             xqc_log(conn->log, XQC_LOG_ERROR,
                     "|write_socket error|conn:%p|size:%ud|sent:%z|", conn, len, sent);
             xqc_log(conn->log, XQC_LOG_ERROR,
