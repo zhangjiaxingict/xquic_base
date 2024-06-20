@@ -944,6 +944,23 @@ xqc_path_send_buffer_remove(xqc_path_ctx_t *path, xqc_packet_out_t *packet_out)
     }
 }
 
+void
+xqc_path_send_buffer_empty(xqc_connection_t *conn, xqc_path_ctx_t *path, xqc_list_head_t *head, xqc_send_type_t send_type)
+{
+    xqc_packet_out_t *packet_out;
+    xqc_list_head_t  *pos, *next;
+
+    xqc_send_queue_t *send_queue = conn->conn_send_queue;
+
+    xqc_list_for_each_reverse_safe(pos, next, &path->path_schedule_buf[send_type]) {
+        packet_out = xqc_list_entry(pos, xqc_packet_out_t, po_list);
+        xqc_path_send_buffer_remove(path, packet_out);
+    }
+
+    xqc_send_queue_out_queue_empty(send_queue);
+
+    path->path_schedule_bytes = 0;
+}
 
 void
 xqc_path_send_buffer_clear(xqc_connection_t *conn, xqc_path_ctx_t *path, xqc_list_head_t *head, xqc_send_type_t send_type)

@@ -1728,6 +1728,40 @@ xqc_path_empty_packets(xqc_connection_t *conn, xqc_path_ctx_t *path,
 
 }
 
+void
+xqc_path_empty_packets_fb(xqc_connection_t *conn, xqc_path_ctx_t *path,
+    xqc_list_head_t *head, int congest, xqc_send_type_t send_type)
+{
+    ssize_t send_burst_count = 0;
+
+    xqc_path_send_buffer_empty(conn, path, head, send_type);
+}
+
+void
+xqc_conn_empty_packets_fb(xqc_connection_t *conn)//used for rtc feedback, empty packet queue
+{
+    int congest;
+    xqc_path_ctx_t  *path;
+    xqc_list_head_t *head;
+    xqc_list_head_t *pos, *next;
+
+    congest = 0;
+    head = &conn->conn_send_queue->sndq_send_packets_high_pri;
+    xqc_list_for_each_safe(pos, next, &conn->conn_paths_list) {
+        path = xqc_list_entry(pos, xqc_path_ctx_t, path_list);
+        xqc_path_empty_packets_fb(conn, path, head, congest, XQC_SEND_TYPE_NORMAL_HIGH_PRI);
+    }
+
+    head = &conn->conn_send_queue->sndq_send_packets;
+    congest = 1;
+    xqc_list_for_each_safe(pos, next, &conn->conn_paths_list) {
+        path = xqc_list_entry(pos, xqc_path_ctx_t, path_list);
+        xqc_path_empty_packets_fb(conn, path, head, congest, XQC_SEND_TYPE_NORMAL);
+    }
+
+    return;
+}
+
 
 void
 xqc_conn_empty_packets(xqc_connection_t *conn)//used for rtc feedback, empty packet queue
