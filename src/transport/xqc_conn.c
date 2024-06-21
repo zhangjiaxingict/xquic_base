@@ -1764,7 +1764,7 @@ xqc_conn_empty_packets_fb(xqc_connection_t *conn)//used for rtc feedback, empty 
 
 
 void
-xqc_conn_empty_packets(xqc_connection_t *conn)//used for rtc feedback, empty packet queue
+xqc_conn_empty_packets(xqc_connection_t *conn)
 {
     int congest;
     xqc_path_ctx_t  *path;
