@@ -846,6 +846,14 @@ typedef struct xqc_cc_params_s {
      * when Copa competes with loss-based CCAs.
      */
     double      copa_delta_ai_unit;
+    double      gcc_delta_base; 
+    /* 0 < delta_max <= 1.0, default 0.5 */
+    double      gcc_delta_max;
+    /* 
+     * 1.0 <= delta_ai_unit, default 1.0, greater values mean more aggressive
+     * when Copa competes with loss-based CCAs.
+     */
+    double      gcc_delta_ai_unit;
 } xqc_cc_params_t;
 
 typedef struct xqc_scheduler_params_u {
@@ -911,6 +919,7 @@ XQC_EXPORT_PUBLIC_API XQC_EXTERN const xqc_cong_ctrl_callback_t xqc_bbr2_cb;
 XQC_EXPORT_PUBLIC_API XQC_EXTERN const xqc_cong_ctrl_callback_t xqc_bbr_cb;
 XQC_EXPORT_PUBLIC_API XQC_EXTERN const xqc_cong_ctrl_callback_t xqc_cubic_cb;
 XQC_EXPORT_PUBLIC_API XQC_EXTERN const xqc_cong_ctrl_callback_t xqc_bbr_white_cb;
+XQC_EXPORT_PUBLIC_API XQC_EXTERN const xqc_cong_ctrl_callback_t xqc_gcc_cb;
 #ifdef XQC_ENABLE_UNLIMITED
 XQC_EXPORT_PUBLIC_API XQC_EXTERN const xqc_cong_ctrl_callback_t xqc_unlimited_cc_cb;
 #endif

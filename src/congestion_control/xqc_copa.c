@@ -541,6 +541,20 @@ xqc_copa_get_pacing_rate(void *cong)
     return copa->pacing_rate;
 }
 
+void xqc_copa_renew_cwnd_srtt(void *cong_ctl, uint64_t pacing_rate, xqc_sample_t *sampler)
+{
+    xqc_copa_t *copa = (xqc_copa_t *)cong_ctl;
+
+    if(copa->pacing_rate > pacing_rate){
+
+        copa->pacing_rate = xqc_min(pacing_rate, copa->pacing_rate*0.7);
+
+    }else{
+        copa->pacing_rate = xqc_max(pacing_rate, copa->pacing_rate*1.3);
+    }
+   
+}
+
 const xqc_cong_ctrl_callback_t xqc_copa_cb = {
     .xqc_cong_ctl_size                 = xqc_copa_size,
     .xqc_cong_ctl_init                 = xqc_copa_init,
@@ -553,4 +567,5 @@ const xqc_cong_ctrl_callback_t xqc_copa_cb = {
     .xqc_cong_ctl_restart_from_idle    = xqc_copa_restart_from_idle,
     .xqc_cong_ctl_in_recovery          = xqc_copa_in_recovery,
     .xqc_cong_ctl_get_pacing_rate      = xqc_copa_get_pacing_rate,
+    .xqc_renew_cwnd_srtt               = xqc_copa_renew_cwnd_srtt,
 };
