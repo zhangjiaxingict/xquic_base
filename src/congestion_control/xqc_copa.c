@@ -547,10 +547,10 @@ void xqc_copa_renew_cwnd_srtt(void *cong_ctl, uint64_t pacing_rate, xqc_sample_t
 
     if(copa->pacing_rate > pacing_rate){
 
-        copa->pacing_rate = xqc_min(pacing_rate, copa->pacing_rate*0.7);
+        copa->pacing_rate = xqc_max(pacing_rate, copa->pacing_rate * 0.8);
 
     }else{
-        copa->pacing_rate = xqc_max(pacing_rate, copa->pacing_rate*1.3);
+        copa->pacing_rate = xqc_min(pacing_rate, copa->pacing_rate * 1.2);
     }
    
 }
