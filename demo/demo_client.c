@@ -34,6 +34,12 @@
 #include <netdb.h>
 #endif
 
+#include "packet_pool.h"
+
+float drop_rate = 0;
+FIFOQueue packet_queue;
+int waiting_time = 6;
+
 
 #define XQC_PACKET_TMP_BUF_LEN  1600
 #define MAX_BUF_SIZE            (100*1024*1024)
@@ -1335,21 +1341,62 @@ xqc_demo_cli_socket_read_handler(xqc_demo_cli_user_conn_t *user_conn, int fd)
         recv_sum += recv_size;
         uint64_t recv_time = xqc_now();
         user_path->last_sock_op_time = recv_time;
-#ifdef XQC_NO_PID_PACKET_PROCESS
-        if (xqc_engine_packet_process(user_conn->ctx->engine, packet_buf, recv_size,
+
+        if(drop_rate == 0){
+            xqc_int_t ret = xqc_engine_packet_process(user_conn->ctx->engine, packet_buf, recv_size,
                                       (struct sockaddr *)(&user_path->local_addr),
                                       user_path->local_addrlen, (struct sockaddr *)(&addr),
                                       addr_len, (xqc_msec_t)recv_time,
-                                      user_conn) != XQC_OK)
-#else
-        if (xqc_engine_packet_process(user_conn->ctx->engine, packet_buf, recv_size,
-                                      (struct sockaddr *)(&user_path->local_addr),
-                                      user_path->local_addrlen, (struct sockaddr *)(&addr),
-                                      addr_len, user_path->path_id, (xqc_msec_t)recv_time,
-                                      user_conn) != XQC_OK)
-#endif
-        {
-            return;
+                                      user_conn);
+                if (ret != XQC_OK)
+                {
+                    printf("server_read_handler: packet process err, ret: %d\n", ret);
+                    return;
+                }
+            continue;
+        }
+
+        Packet_QUIC *new_packet = (Packet_QUIC *)malloc(sizeof(Packet_QUIC));
+        memcpy(new_packet->data, packet_buf, recv_size);
+        new_packet->recv_time = recv_time;
+        new_packet->send_time = recv_time;
+        new_packet->packet_size = recv_size;
+        new_packet->drop_count = 0;
+        printf("!!!!!!!!!enqueue a packet\n");
+        enqueue(&packet_queue, new_packet);
+        while(1){
+            Packet_QUIC *packet_recv = NULL;
+            if(is_queue_empty(&packet_queue)){
+                break;
+            }else if(packet_queue.front->packet->send_time <= recv_time){
+                if(packet_queue.front->packet->drop_count == 3){
+                    packet_recv = dequeue(&packet_queue);
+                }else{
+                    if(should_drop_packet(drop_rate)){
+                        packet_queue.front->packet->send_time = packet_queue.front->packet->send_time + waiting_time * 1000;
+                        packet_queue.front->packet->drop_count++;
+                    }else{
+                        packet_recv = dequeue(&packet_queue);
+                    }
+                }
+
+            }else{
+                break;
+            }
+            if(packet_recv != NULL){
+                printf("#############dequeue a packet\n");
+                xqc_int_t ret = xqc_engine_packet_process(user_conn->ctx->engine, (const unsigned char *)packet_recv->data, packet_recv->packet_size,
+                                                    (struct sockaddr *)(&user_path->local_addr), 
+                                                    user_path->local_addrlen, (struct sockaddr *)(&addr),
+                                                    addr_len,
+                                                    (xqc_usec_t)recv_time, user_conn);
+                if (ret != XQC_OK)
+                {
+                    printf("server_read_handler: packet process err, ret: %d\n", ret);
+                    return;
+                }
+                free(packet_recv);
+            }
         }
     } while (recv_size > 0);
 
@@ -1798,8 +1845,12 @@ void
 xqc_demo_cli_parse_args(int argc, char *argv[], xqc_demo_cli_client_args_t *args)
 {
     int ch = 0;
-    while ((ch = getopt(argc, argv, "a:p:c:Ct:S:0m:A:D:l:L:k:K:U:u:dMoi:w:Ps:bZ:NQT:R:V:B:I:n:eE")) != -1) {
+    while ((ch = getopt(argc, argv, "r:a:p:c:Ct:S:0m:A:D:l:L:k:K:U:u:dMoi:w:Ps:bZ:NQT:R:V:B:I:n:eE")) != -1) {
         switch (ch) {
+        case 'r':
+        printf("option drop rate :%s\n", optarg);
+        drop_rate = atof(optarg);
+        break;
         /* server ip */
         case 'a':
             printf("option addr :%s\n", optarg);

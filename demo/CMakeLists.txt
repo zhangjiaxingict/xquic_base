@@ -9,6 +9,7 @@ set(
 set(
     DEMO_CLIENT_SOURCES
     ${HQ_SOURCES}
+    "packet_pool.c"
     "demo_client.c"
 )
 
