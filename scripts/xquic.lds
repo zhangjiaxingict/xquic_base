@@ -156,6 +156,14 @@ XQUIC_VERS_1.0 {
         xqc_demo_svr_init_alpn_ctx;
         xqc_now;
         xqc_conn_get_unscheduled_bytes;
+        xqc_var_buf_create;
+        xqc_var_buf_save_data;
+        xqc_fixed_len_int_parse;
+        xqc_var_buf_free;
+        xqc_list_buf_to_tail;
+        xqc_list_buf_free;
+        xqc_list_buf_list_free;
+        xqc_stream_get_direction;
     local:
         *;
 };
